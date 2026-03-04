@@ -3,17 +3,22 @@ import pandas as pd
 import numpy as np
 import joblib
 import json
+
 from database import create_table, insert_prediction, fetch_predictions
 
-# Initialize database
+# Initialize database (uncomment if using)
 create_table()
 
 # Load model
-model = joblib.load("gradient_boosting_model.pkl")
+model = joblib.load("random_forest_model.pkl")
 
 # Load feature columns
 with open("feature_columns.json", "r") as f:
     feature_columns = json.load(f)
+
+# Load training bin edges for price_original
+with open("price_bins.json", "r") as f:
+    training_bin_edges = json.load(f)
 
 st.set_page_config(page_title="Game Success Predictor", layout="wide")
 
@@ -82,18 +87,22 @@ if menu == "Make Prediction":
             if "mac_and_linux" in input_dict:
                 input_dict["mac_and_linux"] = mac * linux
 
-            # Handle price bins (basic recreation)
-            if "price_original_medium-low" in input_dict:
-                if price_original_input >= 10 and price_original_input < 30:
-                    input_dict["price_original_medium-low"] = 1
+            # Handle price bins (CORRECTED LOGIC)
+            # Initialize one-hot encoded columns to 0
+            input_dict["price_original_medium-low"] = 0
+            input_dict["price_original_medium-high"] = 0
+            input_dict["price_original_high"] = 0
 
-            if "price_original_medium-high" in input_dict:
-                if price_original_input >= 30 and price_original_input < 60:
-                    input_dict["price_original_medium-high"] = 1
-
-            if "price_original_high" in input_dict:
-                if price_original_input >= 60:
-                    input_dict["price_original_high"] = 1
+            # Assign based on the calculated bins for the log-transformed price
+            # Note: training_bin_edges[0] is the min, training_bin_edges[4] is the max.
+            # The bins are (lower_bound, upper_bound].
+            if training_bin_edges[1] < price_original_log <= training_bin_edges[2]:
+                input_dict["price_original_medium-low"] = 1
+            elif training_bin_edges[2] < price_original_log <= training_bin_edges[3]:
+                input_dict["price_original_medium-high"] = 1
+            elif training_bin_edges[3] < price_original_log <= training_bin_edges[4]:
+                input_dict["price_original_high"] = 1
+            # If price_original_log is <= training_bin_edges[1], it's 'low', and all bin columns remain 0.
 
             # Convert to DataFrame
             input_data = pd.DataFrame([input_dict])
@@ -101,7 +110,7 @@ if menu == "Make Prediction":
             prediction = model.predict(input_data)[0]
             probability = model.predict_proba(input_data)[0][1]
 
-            # Save to database
+
             insert_prediction(
                 game_name,
                 price_original_input,
@@ -161,4 +170,3 @@ elif menu == "Prediction History":
 
     else:
         st.info("No predictions recorded yet.")
-

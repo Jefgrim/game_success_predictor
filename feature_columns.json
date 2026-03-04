@@ -1,10 +1,1 @@
-["price_original",
-  "discount",
-  "win",
-  "mac",
-  "linux",
-  "price_original_medium-low",
-  "price_original_medium-high",
-  "price_original_high",
-  "mac_and_linux"
-]
+["price_original", "discount", "win", "mac", "linux", "price_original_medium-low", "price_original_medium-high", "price_original_high", "mac_and_linux"]
