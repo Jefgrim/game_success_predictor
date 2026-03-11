@@ -146,7 +146,7 @@ if menu == "Make Prediction":
             with res_col2:
                 st.write("### Why did the model make this decision?")
                 st.write(
-                    "This chart shows the **Feature Importances** of your Random Forest model. It highlights which factors weighed the heaviest in calculating the success probability.")
+                    "This chart shows the **Feature Importances** of the Random Forest model. It highlights which factors weighed the heaviest in calculating the success probability.")
 
                 # Feature Importance Bar Chart
                 importances = model.feature_importances_
