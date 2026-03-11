@@ -28,7 +28,7 @@ def load_model_and_assets():
 
 model, feature_columns, training_bin_edges = load_model_and_assets()
 
-st.title("🎮 Game Success Prediction Dashboard")
+st.title("Game Success Prediction Dashboard")
 
 menu = st.sidebar.selectbox("Navigation", ["Make Prediction", "Prediction History"])
 
