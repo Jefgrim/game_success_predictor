@@ -169,7 +169,6 @@ elif menu == "Prediction History":
 
     # Uncomment when your DB is active
     data = fetch_predictions()
-    data = []  # Placeholder
 
     if data:
         df = pd.DataFrame(data, columns=[
