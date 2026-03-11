@@ -13,7 +13,7 @@ from database import create_table, insert_prediction, fetch_predictions
 
 
 # Initialize database (uncomment if using)
-create_table()
+# create_table()
 
 # Load model
 @st.cache_resource
@@ -103,7 +103,7 @@ if menu == "Make Prediction":
             probability = model.predict_proba(input_data)[0][1]
 
             # Insert to DB (uncomment if using)
-            insert_prediction(game_name, price_original_input, discount_input, win, mac, linux, int(prediction), float(probability))
+            # insert_prediction(game_name, price_original_input, discount_input, win, mac, linux, int(prediction), float(probability))
 
             st.markdown("---")
             st.subheader("Prediction Results")
@@ -168,7 +168,8 @@ elif menu == "Prediction History":
     st.subheader("Prediction History")
 
     # Uncomment when your DB is active
-    data = fetch_predictions()
+    # data = fetch_predictions()
+    data = []  # Placeholder
 
     if data:
         df = pd.DataFrame(data, columns=[
