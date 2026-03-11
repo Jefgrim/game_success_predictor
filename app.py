@@ -11,11 +11,11 @@ st.set_page_config(page_title="Game Success Predictor", layout="wide")
 
 from database import create_table, insert_prediction, fetch_predictions
 
+# Initialize database
+create_table()
 
-# Initialize database (uncomment if using)
-# create_table()
 
-# Load model
+# Load model and assets
 @st.cache_resource
 def load_model_and_assets():
     model = joblib.load("random_forest_model.pkl")
@@ -84,7 +84,7 @@ if menu == "Make Prediction":
             if "mac_and_linux" in input_dict:
                 input_dict["mac_and_linux"] = mac * linux
 
-            # Handle price bins (FIXED LOGIC)
+            # Handle price bins dynamically based on training quartiles
             if price_original_log <= training_bin_edges[1]:
                 if "price_original_low" in input_dict: input_dict["price_original_low"] = 1
             elif price_original_log <= training_bin_edges[2]:
@@ -94,7 +94,7 @@ if menu == "Make Prediction":
             else:
                 if "price_original_high" in input_dict: input_dict["price_original_high"] = 1
 
-            # Convert to DataFrame and enforce column order
+            # Convert to DataFrame and enforce strict column order
             input_data = pd.DataFrame([input_dict])
             input_data = input_data[feature_columns]
 
@@ -102,8 +102,17 @@ if menu == "Make Prediction":
             prediction = model.predict(input_data)[0]
             probability = model.predict_proba(input_data)[0][1]
 
-            # Insert to DB (uncomment if using)
-            # insert_prediction(game_name, price_original_input, discount_input, win, mac, linux, int(prediction), float(probability))
+            # Insert to DB (Uncommented and active)
+            insert_prediction(
+                game_name,
+                price_original_input,
+                discount_input,
+                win,
+                mac,
+                linux,
+                int(prediction),
+                float(probability)
+            )
 
             st.markdown("---")
             st.subheader("Prediction Results")
@@ -144,7 +153,7 @@ if menu == "Make Prediction":
                 feat_df = pd.DataFrame({
                     "Feature": feature_columns,
                     "Importance": importances
-                }).sort_values(by="Importance", ascending=True)  # Sort for horizontal bar chart
+                }).sort_values(by="Importance", ascending=True)
 
                 # Make feature names more readable
                 feat_df["Feature"] = feat_df["Feature"].str.replace("_", " ").str.title()
@@ -167,9 +176,8 @@ if menu == "Make Prediction":
 elif menu == "Prediction History":
     st.subheader("Prediction History")
 
-    # Uncomment when your DB is active
-    # data = fetch_predictions()
-    data = []  # Placeholder
+    # Fetch from DB (Uncommented and active)
+    data = fetch_predictions()
 
     if data:
         df = pd.DataFrame(data, columns=[
